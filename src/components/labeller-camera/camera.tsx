@@ -1,104 +1,116 @@
 import {
-    Camera,
-    useFrameProcessor,
-    useCameraDevice,
-    useCameraPermission,
-    runAtTargetFps,
+  Camera,
+  useFrameProcessor,
+  useCameraDevice,
+  useCameraPermission,
+  runAtTargetFps,
 } from 'react-native-vision-camera';
 import { OcrResult, performOcr } from '@bear-block/vision-camera-ocr';
 import { StyleSheet, View } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useRunOnJS } from 'react-native-worklets-core';
 
+import { ScoredOcrResult } from '@/types';
+
 import { calculateResultScore } from './helpers';
-import { ScanFeedback, ScanPhase } from './feedback';
-import { ScoredOcrResult } from './types';
 import {
-    RecognitionLanguages,
-    SettlingFrameCount,
-    TargetFPS,
+  RecognitionLanguages,
+  SettlingFrameCount,
+  TargetFPS,
 } from './constants';
+import { ScanFeedback, ScanPhase } from './feedback';
 
-export function NutritionFactLabellerCamera() {
-    const { hasPermission, requestPermission } = useCameraPermission();
-    useEffect(() => {
-        if (!hasPermission) requestPermission();
-    }, [hasPermission, requestPermission]);
+export interface NutritionFactLabellerCameraProps {
+  onScanComplete: (result: ScoredOcrResult) => void;
+}
 
-    const device = useCameraDevice('back');
+export function NutritionFactLabellerCamera({
+  onScanComplete,
+}: NutritionFactLabellerCameraProps) {
+  const { hasPermission, requestPermission } = useCameraPermission();
+  useEffect(() => {
+    if (!hasPermission) requestPermission();
+  }, [hasPermission, requestPermission]);
 
-    const remainingFramesRef = useRef<number>(SettlingFrameCount);
-    const [scanPhase, setScanPhase] = useState<ScanPhase>('scanning');
+  const device = useCameraDevice('back');
 
-    const bestResultRef = useRef<ScoredOcrResult | null>(null);
-    const [lastResult, setResult] = useState<null | ScoredOcrResult>(
-        bestResultRef.current
-    );
+  const [scanPhase, setScanPhase] = useState<ScanPhase>('scanning');
+  const isCameraActive = scanPhase !== 'processing';
 
-    const handleResult = useRunOnJS((result: OcrResult) => {
-        const candidate = calculateResultScore(result);
+  const bestResultRef = useRef<ScoredOcrResult | null>(null);
+  const remainingFramesRef = useRef<number>(SettlingFrameCount);
 
-        if (candidate) {
-            const current = bestResultRef.current;
-            if (candidate.pass) {
-                if (!current) {
-                    setScanPhase('settling');
-                }
+  useEffect(() => {
+    if (scanPhase === 'processing' && bestResultRef.current) {
+      onScanComplete(bestResultRef.current);
+    }
+  }, [onScanComplete, scanPhase]);
 
-                if (!current || candidate.score >= current.score) {
-                    bestResultRef.current = candidate;
-                    setResult(candidate);
-                }
-            }
+  const handleResult = useRunOnJS((result: OcrResult) => {
+    if (remainingFramesRef.current == 0) return;
+
+    const candidate = calculateResultScore(result);
+
+    if (candidate) {
+      const current = bestResultRef.current;
+      if (candidate.pass) {
+        if (!current) {
+          setScanPhase('settling');
         }
 
-        if (bestResultRef.current && remainingFramesRef.current >= 0) {
-            remainingFramesRef.current -= 1;
-
-            if (remainingFramesRef.current === 0) {
-                setScanPhase('processing');
-            }
+        if (!current || candidate.score >= current.score) {
+          bestResultRef.current = candidate;
         }
-    }, []);
+      }
+    }
 
-    const frameProcessor = useFrameProcessor(
-        (frame) => {
-            'worklet';
+    if (bestResultRef.current && remainingFramesRef.current >= 0) {
+      remainingFramesRef.current -= 1;
 
-            runAtTargetFps(TargetFPS, () => {
-                'worklet';
-                const result = performOcr(frame, {
-                    includeBoxes: true,
-                    includeConfidence: true,
-                    recognitionLevel: 'accurate',
-                    recognitionLanguages: RecognitionLanguages,
-                    usesLanguageCorrection: false,
-                });
+      if (remainingFramesRef.current === 0) {
+        setScanPhase('processing');
+      }
+    }
+  }, []);
 
-                if (result) {
-                    handleResult(result);
-                }
-            });
-        },
-        [handleResult]
-    );
+  const frameProcessor = useFrameProcessor(
+    (frame) => {
+      'worklet';
 
-    if (device == null) return null;
+      runAtTargetFps(TargetFPS, () => {
+        'worklet';
+        const result = performOcr(frame, {
+          includeBoxes: true,
+          includeConfidence: true,
+          recognitionLevel: 'accurate',
+          recognitionLanguages: RecognitionLanguages,
+          usesLanguageCorrection: false,
+        });
 
-    return (
-        <View style={styles.container}>
-            <Camera
-                style={StyleSheet.absoluteFill}
-                device={device}
-                isActive={true}
-                frameProcessor={frameProcessor}
-            />
+        if (result) {
+          handleResult(result);
+        }
+      });
+    },
+    [handleResult]
+  );
 
-            <ScanFeedback phase={scanPhase} />
-        </View>
-    );
+  if (device == null) return null;
+
+  return (
+    <View style={styles.container}>
+      <Camera
+        style={StyleSheet.absoluteFill}
+        device={device}
+        isActive={isCameraActive}
+        frameProcessor={isCameraActive ? frameProcessor : undefined}
+      />
+
+      <ScanFeedback phase={scanPhase} />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
+  container: { flex: 1 },
 });

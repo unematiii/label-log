@@ -1,16 +1,16 @@
-import { ScrollView } from 'react-native'
-import { Stack } from 'expo-router'
+import { ScrollView } from 'react-native';
+import { Stack } from 'expo-router';
 
 export default function SearchIndex() {
-    return (
-        <>
-            <Stack.Title>Search</Stack.Title>
-            <Stack.SearchBar
-                placement="automatic"
-                placeholder="Search catalogue"
-                onChangeText={() => {}}
-            />
-            <ScrollView>{/* Screen content */}</ScrollView>
-        </>
-    )
+  return (
+    <>
+      <Stack.Title>Search</Stack.Title>
+      <Stack.SearchBar
+        placement="automatic"
+        placeholder="Search catalogue"
+        onChangeText={() => {}}
+      />
+      <ScrollView>{/* Screen content */}</ScrollView>
+    </>
+  );
 }
