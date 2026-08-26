@@ -1,7 +1,25 @@
 {
   "expo": {
-    "name": "label-log",
+    "name": "LabelLog",
     "slug": "label-log",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "scheme": "labellog",
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "android": {
+      "package": "com.adaptive.labellog"
+    },
+    "ios": {
+      "bundleIdentifier": "com.adaptive.labellog",
+      "infoPlist": {
+        "CFBundleDisplayName": "LabelLog",
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera to capture photos and videos."
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-package com.labellog
+package com.adaptive.labellog
 
 import android.os.Build
 import android.os.Bundle

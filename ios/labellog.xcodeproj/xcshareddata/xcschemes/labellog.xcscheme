@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "labellog.app"
-               BlueprintName = "labellog"
-               ReferencedContainer = "container:labellog.xcodeproj">
+               BuildableName = "LabelLog.app"
+               BlueprintName = "LabelLog"
+               ReferencedContainer = "container:LabelLog.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "labellogTests.xctest"
-               BlueprintName = "labellogTests"
-               ReferencedContainer = "container:labellog.xcodeproj">
+               BuildableName = "LabelLogTests.xctest"
+               BlueprintName = "LabelLogTests"
+               ReferencedContainer = "container:LabelLog.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "labellog.app"
-            BlueprintName = "labellog"
-            ReferencedContainer = "container:labellog.xcodeproj">
+            BuildableName = "LabelLog.app"
+            BlueprintName = "LabelLog"
+            ReferencedContainer = "container:LabelLog.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "labellog.app"
-            BlueprintName = "labellog"
-            ReferencedContainer = "container:labellog.xcodeproj">
+            BuildableName = "LabelLog.app"
+            BlueprintName = "LabelLog"
+            ReferencedContainer = "container:LabelLog.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

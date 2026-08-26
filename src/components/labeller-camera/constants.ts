@@ -1,0 +1,43 @@
+export const NutrientTermGroups = {
+    fat: ['fat', 'rasva', 'rasvad', 'rasvu', 'vet', 'fett', 'fedt'],
+    saturatedFat: [
+        'saturated fat',
+        'saturated fats',
+        'mättat fett',
+        'mettet fett',
+        'mettede fettsyrer',
+        'mættet fedt',
+        'mættede fedtsyrer',
+        'verzadigd vet',
+        'verzadigde vetzuren',
+        'küllastunud rasv',
+        'küllastunud rasvhapped',
+        'tyydyttynyt rasva',
+        'tyydyttyneet rasvahapot',
+        'tyydyttyneitä rasvahappoja',
+    ],
+    carbohydrate: [
+        'carbohydrate',
+        'carbohydrates',
+        'süsivesikud',
+        'koolhydraten',
+        'kolhydrat',
+        'hiilihydraatti',
+        'hiilihydraattia',
+        'karbohydrat',
+        'kulhydrat',
+    ],
+    protein: ['protein', 'proteiin', 'proteiini', 'valgud', 'eiwitten'],
+    salt: ['salt', 'sool', 'soola', 'suola', 'zout'],
+    sugar: [
+        'sugar',
+        'sugars',
+        'sokereita',
+        'suhkrud',
+        'suikers',
+        'socker',
+        'sukker',
+    ],
+} as const;
+
+export const SettlingFrameCount = 2;
