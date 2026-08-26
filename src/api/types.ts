@@ -1,7 +1,6 @@
-export type ExtractNutritionNutritionRequest = {
+export type ExtractNutritionRequest = {
   fullText: string;
   lines: Array<{
-    id: number;
     text: string;
     rect: {
       x: number;

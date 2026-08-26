@@ -1,17 +1,14 @@
-import {
-  ExtractNutritionNutritionRequest,
-  ExtractNutritionResponse,
-} from './types';
+import { ExtractNutritionRequest, ExtractNutritionResponse } from './types';
 
 type ApiErrorResponse = {
   code?: string;
   message?: string;
 };
-``;
+
 const ApiBaseUrl = 'http://192.168.0.106:3000';
 
 export async function extractNutrition(
-  request: ExtractNutritionNutritionRequest,
+  request: ExtractNutritionRequest,
   signal?: AbortSignal
 ): Promise<ExtractNutritionResponse> {
   const response = await fetch(`${ApiBaseUrl}/ocr/extract`, {
