@@ -1,5 +1,17 @@
 export const NutrientTermGroups = {
-    fat: ['fat', 'rasva', 'rasvad', 'rasvu', 'vet', 'fett', 'fedt'],
+    fat: [
+        'fat',
+        'rasva',
+        'rasvaa',
+        'rasvad',
+        'rasvu',
+        'vet',
+        'fett',
+        'fedt',
+        'fita',
+        'tauki',
+        'riebalai',
+    ],
     saturatedFat: [
         'saturated fat',
         'saturated fats',
@@ -15,6 +27,13 @@ export const NutrientTermGroups = {
         'tyydyttynyt rasva',
         'tyydyttyneet rasvahapot',
         'tyydyttyneitä rasvahappoja',
+        'tyydyttynyttä',
+        'mettuð fita',
+        'mettaðar fitusýrur',
+        'piesātinātās taukskābes',
+        'piesātinātas taukskābes',
+        'sočiosios riebalų rūgštys',
+        'sočiųjų riebalų rūgščių',
     ],
     carbohydrate: [
         'carbohydrate',
@@ -23,12 +42,25 @@ export const NutrientTermGroups = {
         'koolhydraten',
         'kolhydrat',
         'hiilihydraatti',
+        'hiilihydraatit',
         'hiilihydraattia',
         'karbohydrat',
         'kulhydrat',
+        'kolvetni',
+        'ogļhidrāti',
+        'angliavandeniai',
     ],
-    protein: ['protein', 'proteiin', 'proteiini', 'valgud', 'eiwitten'],
-    salt: ['salt', 'sool', 'soola', 'suola', 'zout'],
+    protein: [
+        'protein',
+        'proteiin',
+        'proteiini',
+        'valgud',
+        'eiwitten',
+        'prótein',
+        'olbaltumvielas',
+        'baltymai',
+    ],
+    salt: ['salt', 'sool', 'soola', 'suola', 'zout', 'sāls', 'druska'],
     sugar: [
         'sugar',
         'sugars',
@@ -37,7 +69,25 @@ export const NutrientTermGroups = {
         'suikers',
         'socker',
         'sukker',
+        'sykur',
+        'sykurtegundir',
+        'cukuri',
+        'cukrūs',
+        'cukrų',
     ],
 } as const;
 
-export const SettlingFrameCount = 2;
+export const SettlingFrameCount = 3;
+export const TargetFPS = 3;
+
+// Apple Vision only accepts languages supported by the active OCR model.
+// Finnish, Icelandic, Estonian, Latvian, and Lithuanian still use Latin-script
+// recognition, with language correction disabled to preserve their spelling.
+export const RecognitionLanguages = [
+    'en-US',
+    'da-DK',
+    'nb-NO',
+    'nn-NO',
+    'sv-SE',
+    'nl-NL',
+];

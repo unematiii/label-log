@@ -11,8 +11,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useRunOnJS } from 'react-native-worklets-core';
 
 import { calculateResultScore } from './helpers';
-import { ScoredOcrResult } from './types';
 import { ScanFeedback, ScanPhase } from './feedback';
+import { ScoredOcrResult } from './types';
+import {
+    RecognitionLanguages,
+    SettlingFrameCount,
+    TargetFPS,
+} from './constants';
 
 export function NutritionFactLabellerCamera() {
     const { hasPermission, requestPermission } = useCameraPermission();
@@ -22,7 +27,7 @@ export function NutritionFactLabellerCamera() {
 
     const device = useCameraDevice('back');
 
-    const remainingFramesRef = useRef<number>(3);
+    const remainingFramesRef = useRef<number>(SettlingFrameCount);
     const [scanPhase, setScanPhase] = useState<ScanPhase>('scanning');
 
     const bestResultRef = useRef<ScoredOcrResult | null>(null);
@@ -60,14 +65,14 @@ export function NutritionFactLabellerCamera() {
         (frame) => {
             'worklet';
 
-            runAtTargetFps(3, () => {
+            runAtTargetFps(TargetFPS, () => {
                 'worklet';
                 const result = performOcr(frame, {
                     includeBoxes: true,
                     includeConfidence: true,
                     recognitionLevel: 'accurate',
-                    recognitionLanguages: ['en-US', 'et-EE', 'nl-NL'],
-                    usesLanguageCorrection: true,
+                    recognitionLanguages: RecognitionLanguages,
+                    usesLanguageCorrection: false,
                 });
 
                 if (result) {
