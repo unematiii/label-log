@@ -8,11 +8,13 @@
     "experiments": {
       "typedRoutes": true
     },
+    "icon": "./assets/images/app-Icon-1024x1024@1x.png",
     "android": {
       "package": "com.adaptive.labellog"
     },
     "ios": {
       "bundleIdentifier": "com.adaptive.labellog",
+      "icon": "./assets/images/app-Icon-1024x1024@1x.png",
       "infoPlist": {
         "CFBundleDisplayName": "LabelLog",
         "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera to capture photos and videos.",
