@@ -1,5 +1,6 @@
 import {
   Button,
+  DisclosureGroup,
   Form,
   Host,
   LabeledContent,
@@ -7,6 +8,7 @@ import {
   Section,
   Text,
   TextField,
+  Toggle,
   useNativeState,
   VStack,
 } from '@expo/ui/swift-ui';
@@ -20,7 +22,13 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 
 import { findProductById, Product } from '@/database';
-import { logNutritionToHealthKit } from '@/health';
+import {
+  getNutrientPreferences,
+  logNutritionToHealthKit,
+  type NutrientKey,
+  type NutrientPreferences,
+  nutrientOptions,
+} from '@/health';
 
 function parsePositiveNumber(value: string): number | null {
   const number = Number(value.trim().replace(',', '.'));
@@ -43,14 +51,39 @@ function ProductLogForm({ product }: { product: Product }) {
   const servingAmount = useNativeState(String(product.servingAmount));
   const quantity = useNativeState('1');
   const [isLogging, setIsLogging] = useState(false);
+  const [preferences, setPreferences] = useState<NutrientPreferences | null>(
+    null
+  );
   const [message, setMessage] = useState<{
     kind: 'error' | 'success';
     text: string;
   } | null>(null);
 
+  useEffect(() => {
+    getNutrientPreferences()
+      .then(setPreferences)
+      .catch(() =>
+        setMessage({
+          kind: 'error',
+          text: 'Could not load nutrition settings.',
+        })
+      );
+  }, []);
+
+  const handleNutrientChange = (key: NutrientKey, isOn: boolean) => {
+    setPreferences((current) =>
+      current ? { ...current, [key]: isOn } : current
+    );
+  };
+
   const handleLog = async () => {
     const parsedServingAmount = parsePositiveNumber(servingAmount.get());
     const parsedQuantity = parsePositiveNumber(quantity.get());
+
+    if (!preferences) {
+      setMessage({ kind: 'error', text: 'Nutrition settings are not ready.' });
+      return;
+    }
 
     if (parsedServingAmount === null || parsedQuantity === null) {
       setMessage({
@@ -67,7 +100,8 @@ function ProductLogForm({ product }: { product: Product }) {
       await logNutritionToHealthKit(
         product,
         parsedServingAmount,
-        parsedQuantity
+        parsedQuantity,
+        preferences
       );
       setMessage({ kind: 'success', text: 'Added to Apple Health.' });
     } catch (cause) {
@@ -124,6 +158,22 @@ function ProductLogForm({ product }: { product: Product }) {
           />
         </LabeledContent>
       </Section>
+      <Section>
+        <DisclosureGroup label="Nutrition values" isExpanded={false}>
+          {preferences ? (
+            nutrientOptions.map(({ key, label }) => (
+              <Toggle
+                key={key}
+                label={label}
+                isOn={preferences[key]}
+                onIsOnChange={(isOn) => handleNutrientChange(key, isOn)}
+              />
+            ))
+          ) : (
+            <ProgressView />
+          )}
+        </DisclosureGroup>
+      </Section>
       {message ? (
         <Section title={message.kind === 'error' ? 'Could not log' : 'Logged'}>
           <Text>{message.text}</Text>
@@ -133,7 +183,7 @@ function ProductLogForm({ product }: { product: Product }) {
         <Button
           label={isLogging ? 'Logging…' : 'Log to Apple Health'}
           onPress={handleLog}
-          modifiers={[disabled(isLogging)]}
+          modifiers={[disabled(isLogging || !preferences)]}
         />
       </Section>
     </Form>

@@ -6,22 +6,11 @@ import {
 } from '@kingstinct/react-native-healthkit';
 
 import { Product } from '@/database';
-
-const nutrientTypes = [
-  'HKQuantityTypeIdentifierDietaryEnergyConsumed',
-  'HKQuantityTypeIdentifierDietaryFatTotal',
-  'HKQuantityTypeIdentifierDietaryFatSaturated',
-  'HKQuantityTypeIdentifierDietaryCarbohydrates',
-  'HKQuantityTypeIdentifierDietarySugar',
-  'HKQuantityTypeIdentifierDietaryFiber',
-  'HKQuantityTypeIdentifierDietaryProtein',
-  'HKQuantityTypeIdentifierDietarySodium',
-] as const;
-
-const writableTypes = [
-  'HKCorrelationTypeIdentifierFood',
-  ...nutrientTypes,
-] as const;
+import {
+  createDefaultNutrientPreferences,
+  NutrientKey,
+  NutrientPreferences,
+} from './preferences';
 
 export function nutritionMultiplier(
   product: Product,
@@ -44,7 +33,8 @@ export function nutritionMultiplier(
 export async function logNutritionToHealthKit(
   product: Product,
   servingAmount: number,
-  quantity: number
+  quantity: number,
+  preferences: NutrientPreferences = createDefaultNutrientPreferences()
 ): Promise<void> {
   if (!isHealthDataAvailable()) {
     throw new Error('Apple Health is not available on this device.');
@@ -54,56 +44,75 @@ export async function logNutritionToHealthKit(
   const date = new Date();
   const nutrientValues = [
     {
+      key: 'energy',
       quantityType: 'HKQuantityTypeIdentifierDietaryEnergyConsumed',
       unit: 'kcal',
       quantity: product.energyKcal * multiplier,
     },
     {
+      key: 'fat',
       quantityType: 'HKQuantityTypeIdentifierDietaryFatTotal',
       unit: 'g',
       quantity: product.fatG * multiplier,
     },
     {
+      key: 'saturatedFat',
       quantityType: 'HKQuantityTypeIdentifierDietaryFatSaturated',
       unit: 'g',
       quantity: product.saturatedFatG * multiplier,
     },
     {
+      key: 'carbohydrates',
       quantityType: 'HKQuantityTypeIdentifierDietaryCarbohydrates',
       unit: 'g',
       quantity: product.carbohydratesG * multiplier,
     },
     {
+      key: 'sugars',
       quantityType: 'HKQuantityTypeIdentifierDietarySugar',
       unit: 'g',
       quantity: product.sugarsG * multiplier,
     },
     {
+      key: 'fibre',
       quantityType: 'HKQuantityTypeIdentifierDietaryFiber',
       unit: 'g',
       quantity: product.fibreG * multiplier,
     },
     {
+      key: 'protein',
       quantityType: 'HKQuantityTypeIdentifierDietaryProtein',
       unit: 'g',
       quantity: product.proteinG * multiplier,
     },
     {
+      key: 'sodium',
       quantityType: 'HKQuantityTypeIdentifierDietarySodium',
       unit: 'g',
       quantity: (product.sodiumMg / 1000) * multiplier,
     },
-  ] satisfies Omit<QuantitySampleForSaving, 'startDate' | 'endDate'>[];
+  ] satisfies (Omit<QuantitySampleForSaving, 'startDate' | 'endDate'> & {
+    key: NutrientKey;
+  })[];
 
   const samples = nutrientValues
-    .filter((sample) => sample.quantity > 0)
-    .map((sample) => ({ ...sample, startDate: date, endDate: date }));
+    .filter((sample) => preferences[sample.key] && sample.quantity > 0)
+    .map(({ key: _, ...sample }) => ({
+      ...sample,
+      startDate: date,
+      endDate: date,
+    }));
 
   if (samples.length === 0) {
     throw new Error('This product has no nutrition values to log.');
   }
 
-  await requestAuthorization({ toShare: writableTypes });
+  await requestAuthorization({
+    toShare: [
+      'HKCorrelationTypeIdentifierFood',
+      ...samples.map(({ quantityType }) => quantityType),
+    ],
+  });
 
   const saved = await saveCorrelationSample(
     'HKCorrelationTypeIdentifierFood',
