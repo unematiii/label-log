@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { ProductForm } from '@/components/product-form';
 import {
+  deleteProduct,
   findProductById,
   Product,
   ProductInput,
@@ -44,6 +45,15 @@ export default function EditProductScreen() {
     });
   };
 
+  const handleDelete = async () => {
+    if (!product) return;
+
+    const deleted = await deleteProduct(product.code);
+    if (!deleted) throw new Error('Product not found.');
+
+    router.back();
+  };
+
   return (
     <>
       <Stack.Screen options={{ title: product?.name ?? 'Edit Product' }} />
@@ -60,8 +70,9 @@ export default function EditProductScreen() {
       ) : (
         <ProductForm
           initialValues={product}
-          submitLabel="Save Changes"
+          submitLabel="Save changes"
           onSubmit={handleSubmit}
+          onDelete={handleDelete}
         />
       )}
     </>

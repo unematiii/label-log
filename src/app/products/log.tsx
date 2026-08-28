@@ -6,6 +6,7 @@ import {
   Text,
   VStack,
 } from '@expo/ui/swift-ui';
+import { foregroundStyle } from '@expo/ui/swift-ui/modifiers';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 
@@ -49,7 +50,16 @@ export default function LogProductScreen() {
           <Form>
             <Section title="Product">
               <Text>{product.name}</Text>
-              <Text>{product.code}</Text>
+              <Text
+                modifiers={[
+                  foregroundStyle({
+                    type: 'hierarchical',
+                    style: 'secondary',
+                  }),
+                ]}
+              >
+                {product.code}
+              </Text>
             </Section>
             <Section title="Coming next">
               <Text>Apple Health logging will be added here.</Text>
