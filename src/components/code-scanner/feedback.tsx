@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useEffect } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -38,6 +39,7 @@ const messages = {
 } satisfies Record<CodeScanPhase, { title: string; caption: string | null }>;
 
 export function CodeScanFeedback({ phase }: CodeScanFeedbackProps) {
+  const insets = useSafeAreaInsets();
   const resultProgress = useSharedValue(0);
   const isResult = phase === 'found' || phase === 'not-found';
 
@@ -74,7 +76,7 @@ export function CodeScanFeedback({ phase }: CodeScanFeedbackProps) {
       />
 
       {phase === 'scanning' && (
-        <View style={styles.message}>
+        <View style={[styles.message, { top: insets.top + 16 }]}>
           <Text style={styles.messageText}>{message.title}</Text>
         </View>
       )}
@@ -141,7 +143,6 @@ const styles = StyleSheet.create({
   },
   message: {
     position: 'absolute',
-    top: 40,
     left: 24,
     right: 24,
     alignItems: 'center',
