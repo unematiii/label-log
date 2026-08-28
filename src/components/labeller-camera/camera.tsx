@@ -47,7 +47,7 @@ export function NutritionFactLabellerCamera({
   }, [onScanComplete, scanPhase]);
 
   const handleResult = useRunOnJS((result: OcrResult) => {
-    if (remainingFramesRef.current == 0) return;
+    if (remainingFramesRef.current === 0) return;
 
     const candidate = calculateResultScore(result);
 

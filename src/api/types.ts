@@ -1,6 +1,6 @@
 export type ExtractNutritionRequest = {
   fullText: string;
-  lines: Array<{
+  lines: {
     text: string;
     rect: {
       x: number;
@@ -8,7 +8,7 @@ export type ExtractNutritionRequest = {
       width: number;
       height: number;
     };
-  }>;
+  }[];
   coordinateSpace: 'normalized-top-left';
 };
 

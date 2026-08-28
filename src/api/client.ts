@@ -5,7 +5,7 @@ type ApiErrorResponse = {
   message?: string;
 };
 
-const ApiBaseUrl = 'http://192.168.0.106:3000';
+const ApiBaseUrl = 'http://192.168.0.105:3000';
 
 export async function extractNutrition(
   request: ExtractNutritionRequest,

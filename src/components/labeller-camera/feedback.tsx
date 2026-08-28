@@ -1,11 +1,11 @@
-import {
-  ActivityIndicator,
-  Animated,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { useEffect, useRef } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import Animated, {
+  cancelAnimation,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 export type ScanPhase = 'scanning' | 'settling' | 'processing';
 
@@ -23,44 +23,34 @@ const Messages = {
 } satisfies Record<ScanPhase, string | { title: string; caption: string }>;
 
 export function ScanFeedback({ phase }: ScanFeedbackProps) {
-  const successProgress = useRef(new Animated.Value(0)).current;
+  const successProgress = useSharedValue(0);
 
   useEffect(() => {
     if (phase === 'settling') {
-      successProgress.setValue(0);
-
-      Animated.spring(successProgress, {
-        toValue: 1,
+      successProgress.value = 0;
+      successProgress.value = withSpring(1, {
         damping: 10,
         stiffness: 180,
         mass: 0.7,
-        useNativeDriver: true,
-      }).start();
+      });
+    } else {
+      successProgress.value = 0;
     }
 
-    if (phase === 'scanning') {
-      successProgress.setValue(0);
-    }
+    return () => cancelAnimation(successProgress);
   }, [phase, successProgress]);
 
-  const successStyle = {
-    opacity: successProgress,
-    transform: [
-      {
-        scale: successProgress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0.6, 1],
-        }),
-      },
-    ],
-  };
+  const successStyle = useAnimatedStyle(() => ({
+    opacity: successProgress.value,
+    transform: [{ scale: 0.6 + successProgress.value * 0.4 }],
+  }));
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
       <View
         style={[styles.scanFrame, phase !== 'scanning' && styles.successFrame]}
       />
-      {phase == 'scanning' && (
+      {phase === 'scanning' && (
         <View style={styles.message}>
           <Text style={styles.messageText}>{Messages[phase]}</Text>
         </View>
