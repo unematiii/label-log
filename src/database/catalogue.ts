@@ -39,6 +39,21 @@ export async function findProductById(id: number): Promise<Product | null> {
   return product ?? null;
 }
 
+export async function updateProduct(
+  id: number,
+  product: ProductInput
+): Promise<Product> {
+  const [updated] = await db
+    .update(products)
+    .set(product)
+    .where(eq(products.id, id))
+    .returning();
+
+  if (!updated) throw new Error('Product not found.');
+
+  return updated;
+}
+
 export async function searchProducts(query: string): Promise<Product[]> {
   const value = `%${query.trim()}%`;
 

@@ -40,6 +40,10 @@ export default function RootLayout() {
         name="products/log"
         options={{ title: 'Log Product', headerBackTitle: 'Back' }}
       />
+      <Stack.Screen
+        name="products/edit"
+        options={{ title: 'Edit Product', headerBackTitle: 'Back' }}
+      />
     </Stack>
   );
 }
