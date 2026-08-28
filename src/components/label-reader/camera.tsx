@@ -20,14 +20,13 @@ import {
 } from './constants';
 import { ScanFeedback, ScanPhase } from './feedback';
 
-export interface NutritionFactLabellerCameraProps {
+export interface LabelReaderProps {
   onScanComplete: (result: ScoredOcrResult) => void;
 }
 
-export function NutritionFactLabellerCamera({
-  onScanComplete,
-}: NutritionFactLabellerCameraProps) {
+export function LabelReaderCamera({ onScanComplete }: LabelReaderProps) {
   const { hasPermission, requestPermission } = useCameraPermission();
+
   useEffect(() => {
     if (!hasPermission) requestPermission();
   }, [hasPermission, requestPermission]);

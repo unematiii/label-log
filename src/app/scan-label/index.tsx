@@ -1,6 +1,6 @@
 import { Button, StyleSheet, Text, View } from 'react-native';
 
-import { NutritionFactLabellerCamera } from '@/components/labeller-camera';
+import { NutritionFactLabellerCamera } from '@/components/label-reader';
 import { ScoredOcrResult } from '@/types';
 import { useNutritionExtractionApi } from '@/api';
 

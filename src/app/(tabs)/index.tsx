@@ -1,13 +1,11 @@
-import { Link } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { CodeScannerCamera } from '@/components/code-scanner';
+import { StyleSheet, View } from 'react-native';
 
 export default function IndexScreen() {
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Home</Text>
-      <Link href="/scan-label">Add product to catalogue</Link>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <CodeScannerCamera />
+    </View>
   );
 }
 

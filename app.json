@@ -4,7 +4,16 @@
     "slug": "label-log",
     "version": "1.0.0",
     "scheme": "labellog",
-    "plugins": ["expo-router", "expo-status-bar"],
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      [
+        "react-native-vision-camera",
+        {
+          "enableCodeScanner": true
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },

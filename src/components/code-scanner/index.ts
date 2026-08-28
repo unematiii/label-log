@@ -1,0 +1,1 @@
+export { CodeScannerCamera } from './camera';
