@@ -26,8 +26,8 @@
       "icon": "./assets/images/app-Icon-1024x1024@1x.png",
       "infoPlist": {
         "CFBundleDisplayName": "LabelLog",
-        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera to capture photos and videos.",
-        "NSLocalNetworkUsageDescription": "Connect to the nutrition extraction service on your local network.",
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera to scan barcodes and nutrition information.",
+        "NSLocalNetworkUsageDescription": "Need to access local test server for testing.",
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
         }

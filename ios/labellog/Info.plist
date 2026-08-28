@@ -54,9 +54,9 @@
 		<string>_expo._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) needs access to your Camera to capture photos and videos.</string>
+	<string>$(PRODUCT_NAME) needs access to your Camera to scan barcodes and nutrition information.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Connect to the nutrition extraction service on your local network.</string>
+	<string>Need to access local test server for testing.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
