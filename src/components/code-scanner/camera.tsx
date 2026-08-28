@@ -7,29 +7,54 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 import { StyleSheet, View } from 'react-native';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useIsFocused } from 'expo-router';
 
-export function CodeScannerCamera() {
+import { CodeScanFeedback, CodeScanPhase } from './feedback';
+
+type CodeScannerCameraProps = {
+  phase: CodeScanPhase;
+  onCodeScanned: (code: string) => Promise<void> | void;
+};
+
+export function CodeScannerCamera({
+  phase,
+  onCodeScanned,
+}: CodeScannerCameraProps) {
   const { hasPermission, requestPermission } = useCameraPermission();
+  const isFocused = useIsFocused();
+  const navigationLocked = useRef(false);
 
   useEffect(() => {
     if (!hasPermission) requestPermission();
   }, [hasPermission, requestPermission]);
 
+  useEffect(() => {
+    if (isFocused) navigationLocked.current = false;
+  }, [isFocused]);
+
   const device = useCameraDevice('back');
 
-  const onCodeScanned = useCallback(
-    (codes: Code[], _frame: CodeScannerFrame) => {
-      if (codes.length > 0) {
-        const code = codes[0];
-        console.log('Scanned code:', code.type, code.value);
+  const handleCodeScanned = useCallback(
+    async (codes: Code[], _frame: CodeScannerFrame) => {
+      const code = codes[0]?.value?.trim();
+
+      if (!code || navigationLocked.current) return;
+      navigationLocked.current = true;
+
+      try {
+        await onCodeScanned(code);
+      } catch (error) {
+        // TODO
+        console.error('Could not handle scanned code', error);
+        navigationLocked.current = false;
       }
     },
-    []
+    [onCodeScanned]
   );
   const codeScanner = useCodeScanner({
     codeTypes: ['ean-13', 'upc-a', 'upc-e', 'code-39', 'code-128'],
-    onCodeScanned,
+    onCodeScanned: handleCodeScanned,
   });
 
   if (device == null) return null;
@@ -40,23 +65,13 @@ export function CodeScannerCamera() {
         style={StyleSheet.absoluteFill}
         device={device}
         codeScanner={codeScanner}
-        isActive={true}
+        isActive={isFocused && phase === 'scanning'}
       />
-      <View style={styles.scanFrame} />
+      <CodeScanFeedback phase={phase} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scanFrame: {
-    position: 'absolute',
-    top: '18%',
-    left: 24,
-    right: 24,
-    bottom: '18%',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 18,
-  },
 });

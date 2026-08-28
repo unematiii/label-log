@@ -1,4 +1,4 @@
-import { OcrResult, OcrBlock } from '@bear-block/vision-camera-ocr';
+import { OcrResult } from '@bear-block/vision-camera-ocr';
 
 import { ScoredOcrResult } from '@/types';
 

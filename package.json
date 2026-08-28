@@ -4,9 +4,10 @@
   "main": "expo-router/entry",
   "dependencies": {
     "@bear-block/vision-camera-ocr": "^4.0.2",
+    "@expo/ui": "~57.0.14",
     "babel-preset-expo": "~57.0.0",
     "drizzle-orm": "^0.45.2",
-    "expo": "~57.0.16",
+    "expo": "~57.0.17",
     "expo-constants": "~57.0.14",
     "expo-dev-client": "~57.0.15",
     "expo-linking": "~57.0.7",
@@ -37,7 +38,8 @@
     "web": "expo start --web",
     "db:generate": "drizzle-kit generate",
     "format": "prettier --write .",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "lint:fix": "expo lint --fix"
   },
   "private": true,
   "devDependencies": {

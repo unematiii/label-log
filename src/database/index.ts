@@ -3,6 +3,7 @@ export {
   addProduct,
   deleteProduct,
   findProductByCode,
+  findProductById,
   getProducts,
   saveProduct,
   searchProducts,

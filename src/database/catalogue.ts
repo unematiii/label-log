@@ -31,6 +31,14 @@ export async function findProductByCode(code: string): Promise<Product | null> {
   return product ?? null;
 }
 
+export async function findProductById(id: number): Promise<Product | null> {
+  const product = await db.query.products.findFirst({
+    where: eq(products.id, id),
+  });
+
+  return product ?? null;
+}
+
 export async function searchProducts(query: string): Promise<Product[]> {
   const value = `%${query.trim()}%`;
 

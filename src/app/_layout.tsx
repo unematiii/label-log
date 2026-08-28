@@ -32,6 +32,14 @@ export default function RootLayout() {
         name="scan-label"
         options={{ title: 'Scan label', headerBackTitle: 'Back' }}
       />
+      <Stack.Screen
+        name="products/add"
+        options={{ title: 'Add Product', headerBackTitle: 'Back' }}
+      />
+      <Stack.Screen
+        name="products/log"
+        options={{ title: 'Log Product', headerBackTitle: 'Back' }}
+      />
     </Stack>
   );
 }

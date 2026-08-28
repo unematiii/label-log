@@ -9,6 +9,7 @@ import { OcrResult, performOcr } from '@bear-block/vision-camera-ocr';
 import { StyleSheet, View } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useRunOnJS } from 'react-native-worklets-core';
+import { useIsFocused } from 'expo-router';
 
 import { ScoredOcrResult } from '@/types';
 
@@ -26,6 +27,7 @@ export interface LabelReaderProps {
 
 export function LabelReaderCamera({ onScanComplete }: LabelReaderProps) {
   const { hasPermission, requestPermission } = useCameraPermission();
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     if (!hasPermission) requestPermission();
@@ -34,7 +36,7 @@ export function LabelReaderCamera({ onScanComplete }: LabelReaderProps) {
   const device = useCameraDevice('back');
 
   const [scanPhase, setScanPhase] = useState<ScanPhase>('scanning');
-  const isCameraActive = scanPhase !== 'processing';
+  const isCameraActive = isFocused && scanPhase !== 'processing';
 
   const bestResultRef = useRef<ScoredOcrResult | null>(null);
   const remainingFramesRef = useRef<number>(SettlingFrameCount);

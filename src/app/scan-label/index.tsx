@@ -1,18 +1,25 @@
 import { Button, StyleSheet, Text, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { NutritionFactLabellerCamera } from '@/components/label-reader';
 import { ScoredOcrResult } from '@/types';
 import { useNutritionExtractionApi } from '@/api';
 
 export default function ScanLabelScreen() {
-  const extraction = useNutritionExtractionApi();
+  const { code } = useLocalSearchParams<{ code?: string }>();
 
+  const extraction = useNutritionExtractionApi();
   const handleScanComplete = async (result: ScoredOcrResult) => {
     const nutrition = await extraction.extract(result);
 
     if (nutrition) {
-      // TODO: Populate the editable form or navigate to review.
-      console.log('Nutrition label scan complete', nutrition);
+      router.replace({
+        pathname: '/products/add',
+        params: {
+          code: typeof code === 'string' ? code : '',
+          nutrition: JSON.stringify(nutrition),
+        },
+      });
     }
   };
 
