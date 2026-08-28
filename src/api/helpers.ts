@@ -28,9 +28,6 @@ export function normalizeOcrResult(result: OcrResult): ExtractNutritionRequest {
         ];
       }) ?? [];
 
-  console.log('Lines:', JSON.stringify(lines, null, 2));
-  console.log('Full Text:', result.text);
-
   return {
     fullText: result.text,
     coordinateSpace: 'normalized-top-left',

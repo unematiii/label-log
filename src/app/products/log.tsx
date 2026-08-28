@@ -18,7 +18,7 @@ import {
   keyboardType,
   multilineTextAlignment,
 } from '@expo/ui/swift-ui/modifiers';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 
 import { findProductById, Product } from '@/database';
@@ -54,20 +54,12 @@ function ProductLogForm({ product }: { product: Product }) {
   const [preferences, setPreferences] = useState<NutrientPreferences | null>(
     null
   );
-  const [message, setMessage] = useState<{
-    kind: 'error' | 'success';
-    text: string;
-  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getNutrientPreferences()
       .then(setPreferences)
-      .catch(() =>
-        setMessage({
-          kind: 'error',
-          text: 'Could not load nutrition settings.',
-        })
-      );
+      .catch(() => setError('Could not load nutrition settings.'));
   }, []);
 
   const handleNutrientChange = (key: NutrientKey, isOn: boolean) => {
@@ -81,19 +73,16 @@ function ProductLogForm({ product }: { product: Product }) {
     const parsedQuantity = parsePositiveNumber(quantity.get());
 
     if (!preferences) {
-      setMessage({ kind: 'error', text: 'Nutrition settings are not ready.' });
+      setError('Nutrition settings are not ready.');
       return;
     }
 
     if (parsedServingAmount === null || parsedQuantity === null) {
-      setMessage({
-        kind: 'error',
-        text: 'Serving amount and quantity must be greater than zero.',
-      });
+      setError('Serving amount and quantity must be greater than zero.');
       return;
     }
 
-    setMessage(null);
+    setError(null);
     setIsLogging(true);
 
     try {
@@ -103,15 +92,13 @@ function ProductLogForm({ product }: { product: Product }) {
         parsedQuantity,
         preferences
       );
-      setMessage({ kind: 'success', text: 'Added to Apple Health.' });
+      router.back();
     } catch (cause) {
-      setMessage({
-        kind: 'error',
-        text:
-          cause instanceof Error
-            ? cause.message
-            : 'Could not add nutrition to Apple Health.',
-      });
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : 'Could not add nutrition to Apple Health.'
+      );
     } finally {
       setIsLogging(false);
     }
@@ -174,9 +161,9 @@ function ProductLogForm({ product }: { product: Product }) {
           )}
         </DisclosureGroup>
       </Section>
-      {message ? (
-        <Section title={message.kind === 'error' ? 'Could not log' : 'Logged'}>
-          <Text>{message.text}</Text>
+      {error ? (
+        <Section title="Could not log">
+          <Text>{error}</Text>
         </Section>
       ) : null}
       <Section>

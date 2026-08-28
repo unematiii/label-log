@@ -108,10 +108,7 @@ export async function logNutritionToHealthKit(
   }
 
   await requestAuthorization({
-    toShare: [
-      'HKCorrelationTypeIdentifierFood',
-      ...samples.map(({ quantityType }) => quantityType),
-    ],
+    toShare: samples.map(({ quantityType }) => quantityType),
   });
 
   const saved = await saveCorrelationSample(
