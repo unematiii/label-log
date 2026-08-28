@@ -55,6 +55,10 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to your Camera to scan barcodes and nutrition information.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>LabelLog reads nutrition entries that it adds to Apple Health.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>LabelLog adds the nutrition information you choose to Apple Health.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Need to access local test server for testing.</string>
 	<key>NSUserActivityTypes</key>
