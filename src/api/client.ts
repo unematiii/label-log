@@ -1,3 +1,5 @@
+import { authenticatedFetch } from '@/auth';
+
 import { ExtractNutritionRequest, ExtractNutritionResponse } from './types';
 
 type ApiErrorResponse = {
@@ -5,13 +7,13 @@ type ApiErrorResponse = {
   message?: string;
 };
 
-const ApiBaseUrl = 'http://192.168.0.105:3000';
+const ApiBaseUrl = process.env.EXPO_PUBLIC_API_URL ?? 'https://127.0.0.1:3000';
 
 export async function extractNutrition(
   request: ExtractNutritionRequest,
   signal?: AbortSignal
 ): Promise<ExtractNutritionResponse> {
-  const response = await fetch(`${ApiBaseUrl}/ocr/extract`, {
+  const response = await authenticatedFetch(`${ApiBaseUrl}/ocr/extract`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',

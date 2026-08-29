@@ -20,7 +20,8 @@
           "NSHealthUpdateUsageDescription": "LabelLog adds the nutrition information you choose to Apple Health.",
           "background": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

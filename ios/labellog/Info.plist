@@ -55,6 +55,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to your Camera to scan barcodes and nutrition information.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>LabelLog reads nutrition entries that it adds to Apple Health.</string>
 	<key>NSHealthUpdateUsageDescription</key>
