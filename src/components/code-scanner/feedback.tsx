@@ -1,12 +1,13 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useEffect } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
+
+import { CameraOverlay } from '@/components/camera-overlay';
 
 export type CodeScanPhase =
   'scanning' | 'checking' | 'found' | 'not-found' | 'error';
@@ -39,7 +40,6 @@ const messages = {
 } satisfies Record<CodeScanPhase, { title: string; caption: string | null }>;
 
 export function CodeScanFeedback({ phase }: CodeScanFeedbackProps) {
-  const insets = useSafeAreaInsets();
   const resultProgress = useSharedValue(0);
   const isResult = phase === 'found' || phase === 'not-found';
 
@@ -65,7 +65,7 @@ export function CodeScanFeedback({ phase }: CodeScanFeedbackProps) {
   const message = messages[phase];
 
   return (
-    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+    <CameraOverlay>
       <View
         style={[
           styles.scanFrame,
@@ -76,7 +76,7 @@ export function CodeScanFeedback({ phase }: CodeScanFeedbackProps) {
       />
 
       {phase === 'scanning' && (
-        <View style={[styles.message, { top: insets.top + 16 }]}>
+        <View style={styles.message}>
           <Text style={styles.messageText}>{message.title}</Text>
         </View>
       )}
@@ -114,17 +114,17 @@ export function CodeScanFeedback({ phase }: CodeScanFeedbackProps) {
           <Text style={styles.caption}>{message.caption}</Text>
         </View>
       )}
-    </View>
+    </CameraOverlay>
   );
 }
 
 const styles = StyleSheet.create({
   scanFrame: {
     position: 'absolute',
-    top: '18%',
+    top: 76,
     left: 24,
     right: 24,
-    bottom: '18%',
+    bottom: 76,
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.8)',
     borderRadius: 18,
@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
   },
   message: {
     position: 'absolute',
+    top: 16,
     left: 24,
     right: 24,
     alignItems: 'center',

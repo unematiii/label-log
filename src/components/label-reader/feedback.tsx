@@ -7,6 +7,8 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
+import { CameraOverlay } from '@/components/camera-overlay';
+
 export type ScanPhase = 'scanning' | 'settling' | 'processing';
 
 interface ScanFeedbackProps {
@@ -46,7 +48,7 @@ export function ScanFeedback({ phase }: ScanFeedbackProps) {
   }));
 
   return (
-    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+    <CameraOverlay>
       <View
         style={[styles.scanFrame, phase !== 'scanning' && styles.successFrame]}
       />
@@ -73,17 +75,17 @@ export function ScanFeedback({ phase }: ScanFeedbackProps) {
           <Text style={styles.successText}>{Messages[phase]}</Text>
         </View>
       )}
-    </View>
+    </CameraOverlay>
   );
 }
 
 const styles = StyleSheet.create({
   scanFrame: {
     position: 'absolute',
-    top: '18%',
+    top: 76,
     left: 24,
     right: 24,
-    bottom: '18%',
+    bottom: 76,
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.8)',
     borderRadius: 18,
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
   },
   message: {
     position: 'absolute',
-    top: 40,
+    top: 16,
     left: 24,
     right: 24,
     alignItems: 'center',
