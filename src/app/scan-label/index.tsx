@@ -7,8 +7,9 @@ import {
   multilineTextAlignment,
   padding,
 } from '@expo/ui/swift-ui/modifiers';
-import { router, useLocalSearchParams } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { PlatformColor, Pressable, StyleSheet, View } from 'react-native';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 
 import { NutritionFactLabellerCamera } from '@/components/label-reader';
 import { ScoredOcrResult } from '@/types';
@@ -43,9 +44,11 @@ function ProcessingFeedback() {
 
 function ErrorFeedback({
   error,
+  onManualEntry,
   onRetry,
 }: {
   error: Error;
+  onManualEntry: () => void;
   onRetry: () => void;
 }) {
   return (
@@ -73,6 +76,7 @@ function ErrorFeedback({
           onPress={onRetry}
           modifiers={[buttonStyle('borderedProminent')]}
         />
+        <Button label="Enter Manually" onPress={onManualEntry} />
       </VStack>
     </Host>
   );
@@ -82,6 +86,14 @@ export default function ScanLabelScreen() {
   const { code } = useLocalSearchParams<{ code?: string }>();
 
   const extraction = useNutritionExtractionApi();
+  const openManualForm = () => {
+    extraction.cancel();
+    router.replace({
+      pathname: '/products/add',
+      params: { code: typeof code === 'string' ? code : '' },
+    });
+  };
+
   const handleScanComplete = async (result: ScoredOcrResult) => {
     const nutrition = await extraction.extract(result);
 
@@ -100,6 +112,26 @@ export default function ScanLabelScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable
+              accessibilityHint="Skips label scanning and opens product form"
+              accessibilityLabel="Enter product manually"
+              accessibilityRole="button"
+              hitSlop={12}
+              onPress={openManualForm}
+            >
+              <SymbolView
+                name="plus"
+                size={22}
+                tintColor={PlatformColor('linkColor')}
+              />
+            </Pressable>
+          ),
+        }}
+      />
+
       {extraction.status === 'idle' && (
         <NutritionFactLabellerCamera onScanComplete={handleScanComplete} />
       )}
@@ -107,7 +139,11 @@ export default function ScanLabelScreen() {
       {extraction.status === 'processing' && <ProcessingFeedback />}
 
       {extraction.status === 'error' && (
-        <ErrorFeedback error={extraction.error} onRetry={extraction.reset} />
+        <ErrorFeedback
+          error={extraction.error}
+          onManualEntry={openManualForm}
+          onRetry={extraction.reset}
+        />
       )}
     </View>
   );

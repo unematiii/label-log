@@ -16,6 +16,7 @@
     "expo-secure-store": "~57.0.2",
     "expo-sqlite": "~57.0.1",
     "expo-status-bar": "~57.0.1",
+    "expo-symbols": "~57.0.2",
     "prettier": "^3.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
