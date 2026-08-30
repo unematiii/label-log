@@ -11,8 +11,10 @@ import {
 import {
   buttonStyle,
   lineLimit,
+  padding,
   truncationMode,
 } from '@expo/ui/swift-ui/modifiers';
+import { Platform } from 'react-native';
 import { router, Stack, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -22,6 +24,11 @@ type ProductSection = {
   title: string;
   products: Product[];
 };
+
+const legacyEmptyStateModifiers =
+  Platform.OS === 'ios' && parseInt(String(Platform.Version), 10) < 26
+    ? [padding({ top: 12 })]
+    : undefined;
 
 function sectionTitle(name: string): string {
   const initial = name.trim().charAt(0).toLocaleUpperCase();
@@ -76,7 +83,7 @@ function CatalogueContent({
 
   if (error) {
     return (
-      <List>
+      <List modifiers={legacyEmptyStateModifiers}>
         <Section title="Could not load catalogue">
           <Text>{error}</Text>
         </Section>
@@ -86,7 +93,7 @@ function CatalogueContent({
 
   if (sections.length === 0) {
     return (
-      <List>
+      <List modifiers={legacyEmptyStateModifiers}>
         <Section>
           <Text>
             {query.trim()
