@@ -22,6 +22,19 @@ The app has been tested on iOS 16.4 and later.
 - Choose which nutrients to write to Apple Health
 - Keep the product catalog on the device in a local SQLite database
 
+## Screenshots
+
+<p>
+  <img src="screens/1.PNG" alt="LabelLog screenshot 1" width="240" />
+  <img src="screens/2.PNG" alt="LabelLog screenshot 2" width="240" />
+  <img src="screens/3.PNG" alt="LabelLog screenshot 3" width="240" />
+</p>
+<p>
+  <img src="screens/4.PNG" alt="LabelLog screenshot 4" width="240" />
+  <img src="screens/5.PNG" alt="LabelLog screenshot 5" width="240" />
+  <img src="screens/6.PNG" alt="LabelLog screenshot 6" width="240" />
+</p>
+
 ## Backend dependency
 
 LabelLog requires the
