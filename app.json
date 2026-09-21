@@ -6,6 +6,14 @@
     "scheme": "labellog",
     "plugins": [
       [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          }
+        }
+      ],
+      [
         "expo-router",
         {
           "headers": {
