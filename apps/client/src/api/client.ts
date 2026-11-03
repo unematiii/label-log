@@ -23,6 +23,7 @@ export async function extractNutrition(
       fullText: request.fullText,
       lines: request.lines,
       coordinateSpace: 'normalized-top-left',
+      ...(request.code ? { code: request.code } : {}),
     }),
   });
 

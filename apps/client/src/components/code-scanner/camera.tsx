@@ -53,7 +53,7 @@ export function CodeScannerCamera({
     [onCodeScanned]
   );
   const codeScanner = useCodeScanner({
-    codeTypes: ['ean-13', 'upc-a', 'upc-e', 'code-39', 'code-128'],
+    codeTypes: ['ean-13', 'ean-8', 'upc-a', 'upc-e', 'code-39', 'code-128'],
     onCodeScanned: handleCodeScanned,
   });
 

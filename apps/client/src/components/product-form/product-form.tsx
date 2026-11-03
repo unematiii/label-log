@@ -8,14 +8,17 @@ import {
   Text,
   TextField,
   type TextFieldRef,
+  VStack,
   useNativeState,
 } from '@expo/ui/swift-ui';
 import {
   buttonStyle,
   disabled,
+  font,
   foregroundStyle,
   keyboardType,
   listSectionMargins,
+  multilineTextAlignment,
   pickerStyle,
   tag,
 } from '@expo/ui/swift-ui/modifiers';
@@ -27,6 +30,7 @@ import { DeleteProductAlert } from './delete-product-alert';
 
 type ProductFormProps = {
   initialValues?: Partial<ProductInput>;
+  correctionHints?: Partial<Record<keyof ProductInput, string>>;
   submitLabel?: string;
   onSubmit: (product: ProductInput) => Promise<void> | void;
   onDelete?: () => Promise<void> | void;
@@ -60,22 +64,26 @@ function parseNumber(value: string): number | null {
   return Number.isFinite(number) && number >= 0 ? number : null;
 }
 
-function initialUnit(
+function initialBasisUnit(
+  values: Partial<ProductInput>
+): ProductInput['basisUnit'] {
+  return values.basisUnit ?? values.servingUnit ?? 'g';
+}
+
+function initialServingUnit(
   values: Partial<ProductInput>
 ): ProductInput['servingUnit'] {
-  if (values.basisUnit === 'g' || values.basisUnit === 'ml') {
-    return values.basisUnit;
-  }
-
-  return values.servingUnit ?? 'g';
+  return values.servingUnit ?? (values.basisUnit === 'ml' ? 'ml' : 'g');
 }
 
 function NutrientField({
   label,
   text,
+  hint,
 }: {
   label: string;
   text: NonNullable<React.ComponentProps<typeof TextField>['text']>;
+  hint?: string;
 }) {
   const inputRef = useRef<TextFieldRef>(null);
 
@@ -92,18 +100,32 @@ function NutrientField({
         />
       }
     >
-      <TextField
-        ref={inputRef}
-        text={text}
-        placeholder="0"
-        modifiers={[keyboardType('decimal-pad')]}
-      />
+      <VStack spacing={2} alignment="leading">
+        <TextField
+          ref={inputRef}
+          text={text}
+          placeholder="0"
+          modifiers={[keyboardType('decimal-pad')]}
+        />
+        {hint ? (
+          <Text
+            modifiers={[
+              foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+              font({ textStyle: 'footnote' }),
+              multilineTextAlignment('leading'),
+            ]}
+          >
+            {hint}
+          </Text>
+        ) : null}
+      </VStack>
     </LabeledContent>
   );
 }
 
 export function ProductForm({
   initialValues = {},
+  correctionHints = {},
   submitLabel = 'Save product',
   onSubmit,
   onDelete,
@@ -128,8 +150,11 @@ export function ProductForm({
   const proteinG = useNativeState(initialNumber(initialValues.proteinG));
   const saltG = useNativeState(initialNumber(initialValues.saltG));
   const sodiumMg = useNativeState(initialNumber(initialValues.sodiumMg));
-  const [unit, setUnit] = useState<ProductInput['servingUnit']>(() =>
-    initialUnit(initialValues)
+  const [basisUnit, setBasisUnit] = useState<ProductInput['basisUnit']>(() =>
+    initialBasisUnit(initialValues)
+  );
+  const [servingUnit, setServingUnit] = useState<ProductInput['servingUnit']>(
+    () => initialServingUnit(initialValues)
   );
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -197,8 +222,8 @@ export function ProductForm({
       await onSubmit({
         code: trimmedCode,
         name: trimmedName,
-        basisUnit: unit,
-        servingUnit: unit,
+        basisUnit,
+        servingUnit,
         ...completedNumbers,
       });
     } catch (cause) {
@@ -232,6 +257,15 @@ export function ProductForm({
       <Form>
         <Section title="Product">
           <TextField text={name} placeholder="Product name" />
+          {correctionHints.name ? (
+            <Text
+              modifiers={[
+                foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+              ]}
+            >
+              {correctionHints.name}
+            </Text>
+          ) : null}
           <TextField text={code} placeholder="Barcode" />
         </Section>
 
@@ -241,27 +275,54 @@ export function ProductForm({
             placeholder="Basis amount"
             modifiers={[keyboardType('decimal-pad')]}
           />
+          {correctionHints.basisAmount ? (
+            <Text
+              modifiers={[
+                foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+              ]}
+            >
+              {correctionHints.basisAmount}
+            </Text>
+          ) : null}
           <Picker
             label="Basis unit"
-            selection={unit}
-            onSelectionChange={setUnit}
+            selection={basisUnit}
+            onSelectionChange={setBasisUnit}
             modifiers={[pickerStyle('menu')]}
           >
-            {(['g', 'ml'] as const).map((option) => (
+            {(['g', 'ml', 'serving'] as const).map((option) => (
               <Text key={option} modifiers={[tag(option)]}>
                 {option}
               </Text>
             ))}
           </Picker>
+          {correctionHints.basisUnit ? (
+            <Text
+              modifiers={[
+                foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+              ]}
+            >
+              {correctionHints.basisUnit}
+            </Text>
+          ) : null}
           <TextField
             text={servingAmount}
             placeholder="Serving amount"
             modifiers={[keyboardType('decimal-pad')]}
           />
+          {correctionHints.servingAmount ? (
+            <Text
+              modifiers={[
+                foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+              ]}
+            >
+              {correctionHints.servingAmount}
+            </Text>
+          ) : null}
           <Picker
             label="Serving unit"
-            selection={unit}
-            onSelectionChange={setUnit}
+            selection={servingUnit}
+            onSelectionChange={setServingUnit}
             modifiers={[pickerStyle('menu')]}
           >
             {(['g', 'ml'] as const).map((option) => (
@@ -270,6 +331,15 @@ export function ProductForm({
               </Text>
             ))}
           </Picker>
+          {correctionHints.servingUnit ? (
+            <Text
+              modifiers={[
+                foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+              ]}
+            >
+              {correctionHints.servingUnit}
+            </Text>
+          ) : null}
         </Section>
 
         <Section title="Nutrition values">
@@ -278,6 +348,7 @@ export function ProductForm({
               key={field}
               label={label}
               text={numericStates[field]}
+              hint={correctionHints[field]}
             />
           ))}
         </Section>

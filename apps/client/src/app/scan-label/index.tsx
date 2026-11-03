@@ -10,9 +10,11 @@ import {
 import { PlatformColor, Pressable, StyleSheet, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
+import { useCallback, useState } from 'react';
+import type { OcrResult } from '@bear-block/vision-camera-ocr';
 
 import { NutritionFactLabellerCamera } from '@/components/label-reader';
-import { ScoredOcrResult } from '@/types';
+import type { ScoredOcrResult } from '@/types';
 import { useNutritionExtractionApi } from '@/api';
 
 function ProcessingFeedback() {
@@ -27,7 +29,7 @@ function ProcessingFeedback() {
       >
         <ProgressView />
         <Text modifiers={[font({ textStyle: 'headline' })]}>
-          Reading nutrition information…
+          Reading product and nutrition information…
         </Text>
         <Text
           modifiers={[
@@ -35,7 +37,7 @@ function ProcessingFeedback() {
             multilineTextAlignment('center'),
           ]}
         >
-          Checking the scanned label and correcting its values.
+          Checking the barcode, product name, and nutrition label together.
         </Text>
       </VStack>
     </Host>
@@ -60,8 +62,16 @@ function ErrorFeedback({
           padding({ horizontal: 32 }),
         ]}
       >
-        <Text modifiers={[font({ textStyle: 'title2', weight: 'semibold' })]}>
-          Couldn’t read the nutrition label
+        <Text
+          modifiers={[
+            font({
+              textStyle: 'title2',
+              weight: 'semibold',
+            }),
+            multilineTextAlignment('center'),
+          ]}
+        >
+          Couldn’t read the product information
         </Text>
         <Text
           modifiers={[
@@ -84,36 +94,81 @@ function ErrorFeedback({
 
 export default function ScanLabelScreen() {
   const { code } = useLocalSearchParams<{ code?: string }>();
+  const [scanStep, setScanStep] = useState<'product-name' | 'nutrition'>(
+    'product-name'
+  );
+  const [productNameScan, setProductNameScan] =
+    useState<ScoredOcrResult | null>(null);
 
-  const extraction = useNutritionExtractionApi();
+  const { cancel, extract, reset, status, error } = useNutritionExtractionApi();
   const openManualForm = () => {
-    extraction.cancel();
+    cancel();
     router.replace({
       pathname: '/products/add',
       params: { code: typeof code === 'string' ? code : '' },
     });
   };
 
-  const handleScanComplete = async (result: ScoredOcrResult) => {
-    const nutrition = await extraction.extract(result);
+  const startExtraction = useCallback(
+    async (result: OcrResult) => {
+      const nutrition = await extract(
+        result,
+        typeof code === 'string' ? code : undefined
+      );
 
-    if (nutrition) {
-      router.replace({
-        pathname: '/products/add',
-        params: {
-          code: typeof code === 'string' ? code : '',
-          nutrition: JSON.stringify(nutrition),
-        },
-      });
-    }
-  };
+      if (nutrition) {
+        router.replace({
+          pathname: '/products/add',
+          params: {
+            code: typeof code === 'string' ? code : '',
+            nutrition: JSON.stringify(nutrition),
+          },
+        });
+      }
+    },
+    [code, extract]
+  );
 
-  if (extraction.status === 'success') return null;
+  const handleScanComplete = useCallback(
+    (result: ScoredOcrResult) => {
+      if (scanStep === 'product-name') {
+        setProductNameScan(result);
+        setScanStep('nutrition');
+        return;
+      }
+
+      const combinedResult: OcrResult = productNameScan
+        ? {
+            text: `Product name scan:\n${productNameScan.text}\n\nNutrition label scan:\n${result.text}`,
+            blocks: [...productNameScan.blocks, ...result.blocks],
+          }
+        : result;
+
+      void startExtraction(combinedResult);
+    },
+    [productNameScan, scanStep, startExtraction]
+  );
+
+  const skipNameScan = useCallback(() => {
+    setProductNameScan(null);
+    setScanStep('nutrition');
+  }, []);
+
+  const retry = useCallback(() => {
+    reset();
+    setScanStep(productNameScan ? 'nutrition' : 'product-name');
+  }, [productNameScan, reset]);
+
+  if (status === 'success') return null;
 
   return (
     <View style={styles.container}>
       <Stack.Screen
         options={{
+          title:
+            scanStep === 'product-name'
+              ? 'Scan product name'
+              : 'Scan nutrition label',
           headerRight: () => (
             <Pressable
               accessibilityHint="Skips label scanning and opens product form"
@@ -132,17 +187,27 @@ export default function ScanLabelScreen() {
         }}
       />
 
-      {extraction.status === 'idle' && (
-        <NutritionFactLabellerCamera onScanComplete={handleScanComplete} />
+      {status === 'idle' && (
+        <NutritionFactLabellerCamera
+          key={scanStep}
+          mode={scanStep}
+          onScanComplete={handleScanComplete}
+          onAutoDetect={
+            scanStep === 'nutrition'
+              ? (result) => handleScanComplete(result)
+              : undefined
+          }
+          onSkip={scanStep === 'product-name' ? skipNameScan : undefined}
+        />
       )}
 
-      {extraction.status === 'processing' && <ProcessingFeedback />}
+      {status === 'processing' && <ProcessingFeedback />}
 
-      {extraction.status === 'error' && (
+      {status === 'error' && (
         <ErrorFeedback
-          error={extraction.error}
+          error={error}
           onManualEntry={openManualForm}
-          onRetry={extraction.reset}
+          onRetry={retry}
         />
       )}
     </View>

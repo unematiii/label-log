@@ -52,7 +52,10 @@ export function useNutritionExtractionApi() {
   }, [cancel]);
 
   const extract = useCallback(
-    async (input: OcrResult): Promise<ExtractNutritionResponse | null> => {
+    async (
+      input: OcrResult,
+      code?: string
+    ): Promise<ExtractNutritionResponse | null> => {
       // Cancel a previous extraction if one is still running.
       controllerRef.current?.abort();
 
@@ -69,7 +72,7 @@ export function useNutritionExtractionApi() {
 
       try {
         const result = await extractNutrition(
-          normalizeOcrResult(input),
+          { ...normalizeOcrResult(input), ...(code ? { code } : {}) },
           controller.signal
         );
 

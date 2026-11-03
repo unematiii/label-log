@@ -4,8 +4,11 @@ import { ScoredOcrResult } from '@/types';
 
 import { NutrientTermGroups } from './constants';
 
+export type LabelReaderMode = 'nutrition' | 'product-name';
+
 export function calculateResultScore(
-  result: null | OcrResult
+  result: null | OcrResult,
+  mode: LabelReaderMode = 'nutrition'
 ): null | ScoredOcrResult {
   if (result === null || result.blocks === undefined) {
     return null;
@@ -13,17 +16,19 @@ export function calculateResultScore(
 
   const { blocks, text } = result;
 
-  const labels = hasRequiredLabels(text);
+  const labels = scoreText(text);
+  const trimmedText = text.trim();
+  const isProductText = trimmedText.length > 0;
 
   return {
     blocks,
     text,
-    score: labels.score,
-    pass: labels.pass,
+    score: mode === 'nutrition' ? labels.score : trimmedText.length,
+    pass: mode === 'nutrition' ? labels.pass : isProductText,
   };
 }
 
-function hasRequiredLabels(text: string) {
+function scoreText(text: string) {
   const normalized = text.toLowerCase();
 
   const hasBasis =

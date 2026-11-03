@@ -6,16 +6,36 @@ import { ProductForm } from '@/components/product-form';
 import { addProduct, ProductInput } from '@/database';
 
 function parseNutrition(value: string | string[] | undefined) {
-  if (typeof value !== 'string') return {};
+  if (typeof value !== 'string') {
+    return { values: {}, correctionHints: {} };
+  }
 
   try {
     const nutrition = JSON.parse(value) as ExtractNutritionResponse;
-
-    return Object.fromEntries(
-      Object.entries(nutrition).filter((entry) => entry[1] !== null)
+    const { productName, productNameSource, corrections, ...nutritionValues } =
+      nutrition;
+    const values = Object.fromEntries(
+      Object.entries(nutritionValues).filter((entry) => entry[1] !== null)
     ) as Partial<ProductInput>;
+    if (productName) values.name = productName;
+    const correctionHints = Object.fromEntries(
+      (corrections ?? []).map(({ field, detectedText, source }) => [
+        field,
+        detectedText
+          ? `Detected: '${detectedText}'`
+          : source === 'web_match'
+            ? 'From exact barcode match'
+            : '',
+      ])
+    ) as Partial<Record<keyof ProductInput, string>>;
+
+    if (productNameSource === 'web_match') {
+      correctionHints.name = 'From exact barcode match';
+    }
+
+    return { values, correctionHints };
   } catch {
-    return {};
+    return { values: {}, correctionHints: {} };
   }
 }
 
@@ -24,12 +44,13 @@ export default function AddProductScreen() {
     code?: string;
     nutrition?: string;
   }>();
+  const parsedNutrition = useMemo(() => parseNutrition(nutrition), [nutrition]);
   const initialValues = useMemo(
     () => ({
-      ...parseNutrition(nutrition),
+      ...parsedNutrition.values,
       code: typeof code === 'string' ? code : '',
     }),
-    [code, nutrition]
+    [code, parsedNutrition]
   );
 
   const handleSubmit = async (product: ProductInput) => {
@@ -43,7 +64,11 @@ export default function AddProductScreen() {
   return (
     <>
       <Stack.Screen options={{ title: 'Add Product' }} />
-      <ProductForm initialValues={initialValues} onSubmit={handleSubmit} />
+      <ProductForm
+        initialValues={initialValues}
+        correctionHints={parsedNutrition.correctionHints}
+        onSubmit={handleSubmit}
+      />
     </>
   );
 }

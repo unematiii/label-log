@@ -8,15 +8,17 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { CameraOverlay } from '@/components/camera-overlay';
+import { LabelReaderMode } from './helpers';
 
 export type ScanPhase = 'scanning' | 'settling' | 'processing';
 
 interface ScanFeedbackProps {
   phase: ScanPhase;
+  mode: LabelReaderMode;
 }
 
 const Messages = {
-  scanning: 'Position the nutrition label in view',
+  scanning: 'Position product nutrition label in view',
   settling: {
     title: 'Label found',
     caption: 'Hold steady',
@@ -24,7 +26,7 @@ const Messages = {
   processing: 'Reading nutrition values…',
 } satisfies Record<ScanPhase, string | { title: string; caption: string }>;
 
-export function ScanFeedback({ phase }: ScanFeedbackProps) {
+export function ScanFeedback({ phase, mode }: ScanFeedbackProps) {
   const successProgress = useSharedValue(0);
 
   useEffect(() => {
@@ -49,12 +51,21 @@ export function ScanFeedback({ phase }: ScanFeedbackProps) {
 
   return (
     <CameraOverlay>
-      <View
-        style={[styles.scanFrame, phase !== 'scanning' && styles.successFrame]}
-      />
+      {mode === 'nutrition' ? (
+        <View
+          style={[
+            styles.scanFrame,
+            phase !== 'scanning' && styles.successFrame,
+          ]}
+        />
+      ) : null}
       {phase === 'scanning' && (
         <View style={styles.message}>
-          <Text style={styles.messageText}>{Messages[phase]}</Text>
+          <Text style={styles.messageText}>
+            {mode === 'product-name'
+              ? 'Position the product name in view, then capture it'
+              : Messages[phase]}
+          </Text>
         </View>
       )}
 
@@ -64,8 +75,14 @@ export function ScanFeedback({ phase }: ScanFeedbackProps) {
             <Text style={styles.check}>✓</Text>
           </View>
 
-          <Text style={styles.successText}>{Messages[phase].title}</Text>
-          <Text style={styles.secondaryText}>{Messages[phase].caption}</Text>
+          <Text style={styles.successText}>
+            {mode === 'product-name' ? 'Product name captured' : 'Label found'}
+          </Text>
+          <Text style={styles.secondaryText}>
+            {mode === 'product-name'
+              ? 'Scanning nutrition label'
+              : Messages[phase].caption}
+          </Text>
         </Animated.View>
       )}
 

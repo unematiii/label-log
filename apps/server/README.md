@@ -73,19 +73,20 @@ docker compose exec app node dist/database/scripts/whitelist.js user@example.com
 
 ## Configuration
 
-| Variable            | Purpose                                          | Default     |
-| ------------------- | ------------------------------------------------ | ----------- |
-| `APP_BIND_IP`       | Host interface on which Docker publishes the API | `127.0.0.1` |
-| `POSTGRES_PASSWORD` | Password for the application database user       | Required    |
-| `MISTRAL_API_KEY`   | API key used for nutrition extraction            | Required    |
-| `AUTH_CODE_SECRET`  | Secret used to protect one-time login codes      | Required    |
-| `JWT_SECRET`        | Secret used to sign access tokens                | Required    |
-| `SMTP_HOST`         | SMTP server hostname                             | Required    |
-| `SMTP_PORT`         | SMTP server port                                 | `587`       |
-| `SMTP_SECURE`       | Whether SMTP uses an implicit TLS connection     | `false`     |
-| `SMTP_USER`         | SMTP username                                    | Required    |
-| `SMTP_PASSWORD`     | SMTP password                                    | Required    |
-| `SMTP_FROM`         | Sender shown on login-code emails                | Required    |
+| Variable            | Purpose                                          | Default                |
+| ------------------- | ------------------------------------------------ | ---------------------- |
+| `APP_BIND_IP`       | Host interface on which Docker publishes the API | `127.0.0.1`            |
+| `POSTGRES_PASSWORD` | Password for the application database user       | Required               |
+| `MISTRAL_API_KEY`   | API key used for nutrition extraction            | Required               |
+| `MISTRAL_MODEL`     | Mistral model used for extraction and web search | `mistral-small-latest` |
+| `AUTH_CODE_SECRET`  | Secret used to protect one-time login codes      | Required               |
+| `JWT_SECRET`        | Secret used to sign access tokens                | Required               |
+| `SMTP_HOST`         | SMTP server hostname                             | Required               |
+| `SMTP_PORT`         | SMTP server port                                 | `587`                  |
+| `SMTP_SECURE`       | Whether SMTP uses an implicit TLS connection     | `false`                |
+| `SMTP_USER`         | SMTP username                                    | Required               |
+| `SMTP_PASSWORD`     | SMTP password                                    | Required               |
+| `SMTP_FROM`         | Sender shown on login-code emails                | Required               |
 
 ## API
 
