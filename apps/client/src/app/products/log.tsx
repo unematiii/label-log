@@ -19,12 +19,13 @@ import {
   multilineTextAlignment,
 } from '@expo/ui/swift-ui/modifiers';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { findProductById, Product } from '@/database';
 import {
   getNutrientPreferences,
   logNutritionToHealthKit,
+  nutritionMultiplier,
   type NutrientKey,
   type NutrientPreferences,
   nutrientOptions,
@@ -50,6 +51,9 @@ function FieldLabel({ children }: { children: string }) {
 function ProductLogForm({ product }: { product: Product }) {
   const servingAmount = useNativeState(String(product.servingAmount));
   const quantity = useNativeState('1');
+  const [servingAmountValue, setServingAmountValue] = useState(
+    String(product.servingAmount)
+  );
   const [isLogging, setIsLogging] = useState(false);
   const [preferences, setPreferences] = useState<NutrientPreferences | null>(
     null
@@ -67,6 +71,37 @@ function ProductLogForm({ product }: { product: Product }) {
       current ? { ...current, [key]: isOn } : current
     );
   };
+
+  const nutrientEstimates = useMemo<Record<NutrientKey, string>>(() => {
+    const amount = parsePositiveNumber(servingAmountValue);
+    if (amount === null || product.basisAmount <= 0) {
+      return Object.fromEntries(
+        nutrientOptions.map(({ key }) => [key, '—'])
+      ) as Record<NutrientKey, string>;
+    }
+
+    const multiplier = nutritionMultiplier(product, amount, 1);
+    const estimates: Record<NutrientKey, { value: number; unit: string }> = {
+      energy: { value: product.energyKcal * multiplier, unit: 'kcal' },
+      fat: { value: product.fatG * multiplier, unit: 'g' },
+      saturatedFat: { value: product.saturatedFatG * multiplier, unit: 'g' },
+      carbohydrates: {
+        value: product.carbohydratesG * multiplier,
+        unit: 'g',
+      },
+      sugars: { value: product.sugarsG * multiplier, unit: 'g' },
+      fibre: { value: product.fibreG * multiplier, unit: 'g' },
+      protein: { value: product.proteinG * multiplier, unit: 'g' },
+      sodium: { value: product.sodiumMg * multiplier, unit: 'mg' },
+    };
+
+    return Object.fromEntries(
+      Object.entries(estimates).map(([key, estimate]) => [
+        key,
+        `${Number(estimate.value.toFixed(1))} ${estimate.unit}`,
+      ])
+    ) as Record<NutrientKey, string>;
+  }, [product, servingAmountValue]);
 
   const handleLog = async () => {
     const parsedServingAmount = parsePositiveNumber(servingAmount.get());
@@ -119,6 +154,17 @@ function ProductLogForm({ product }: { product: Product }) {
           {product.code}
         </Text>
       </Section>
+      <Section>
+        <Button
+          label="Edit Product"
+          onPress={() =>
+            router.push({
+              pathname: '/products/edit',
+              params: { id: product.id },
+            })
+          }
+        />
+      </Section>
       <Section title="Log amount">
         <LabeledContent
           label={
@@ -128,6 +174,7 @@ function ProductLogForm({ product }: { product: Product }) {
           <TextField
             text={servingAmount}
             placeholder="0"
+            onTextChange={setServingAmountValue}
             modifiers={[
               keyboardType('decimal-pad'),
               multilineTextAlignment('trailing'),
@@ -151,10 +198,21 @@ function ProductLogForm({ product }: { product: Product }) {
             nutrientOptions.map(({ key, label }) => (
               <Toggle
                 key={key}
-                label={label}
                 isOn={preferences[key]}
                 onIsOnChange={(isOn) => handleNutrientChange(key, isOn)}
-              />
+              >
+                <Text>{label}</Text>
+                <Text
+                  modifiers={[
+                    foregroundStyle({
+                      type: 'hierarchical',
+                      style: 'secondary',
+                    }),
+                  ]}
+                >
+                  {nutrientEstimates[key]}
+                </Text>
+              </Toggle>
             ))
           ) : (
             <ProgressView />

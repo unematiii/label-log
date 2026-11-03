@@ -182,17 +182,7 @@ export function ProductForm({
       <Form>
         <Section title="Product">
           <TextField text={name} placeholder="Product name" />
-          <TextField
-            text={code}
-            placeholder="Barcode"
-            modifiers={[
-              disabled(true),
-              foregroundStyle({
-                type: 'hierarchical',
-                style: 'secondary',
-              }),
-            ]}
-          />
+          <TextField text={code} placeholder="Barcode" />
         </Section>
 
         <Section title="Nutrition basis">

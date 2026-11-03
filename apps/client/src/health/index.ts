@@ -1,4 +1,4 @@
-export { logNutritionToHealthKit } from './nutrition';
+export { logNutritionToHealthKit, nutritionMultiplier } from './nutrition';
 export {
   createDefaultNutrientPreferences,
   getNutrientPreferences,
