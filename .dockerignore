@@ -1,0 +1,8 @@
+.git
+node_modules
+**/node_modules
+**/.expo
+apps/client/.env*
+apps/server/.env
+apps/server/.env.*
+!apps/server/.env.example

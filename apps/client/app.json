@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "LabelLog",
+    "slug": "label-log",
+    "version": "1.0.0",
+    "scheme": "labellog",
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true,
+            "usePrecompiledModules": false
+          }
+        }
+      ],
+      [
+        "expo-router",
+        {
+          "headers": {
+            "Cross-Origin-Embedder-Policy": "credentialless",
+            "Cross-Origin-Opener-Policy": "same-origin"
+          }
+        }
+      ],
+      "expo-status-bar",
+      [
+        "react-native-vision-camera",
+        {
+          "enableCodeScanner": true
+        }
+      ],
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "LabelLog reads nutrition entries that it adds to Apple Health.",
+          "NSHealthUpdateUsageDescription": "LabelLog adds the nutrition information you choose to Apple Health.",
+          "background": false
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "icon": "./assets/images/app-Icon-1024x1024@1x.png",
+    "android": {
+      "package": "com.adaptive.labellog"
+    },
+    "ios": {
+      "bundleIdentifier": "com.adaptive.labellog",
+      "icon": "./assets/images/app-Icon-1024x1024@1x.png",
+      "infoPlist": {
+        "CFBundleDisplayName": "LabelLog",
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera to scan barcodes and nutrition information.",
+        "NSHealthShareUsageDescription": "LabelLog reads nutrition entries that it adds to Apple Health.",
+        "NSHealthUpdateUsageDescription": "LabelLog adds the nutrition information you choose to Apple Health.",
+        "NSLocalNetworkUsageDescription": "Need to access local test server for testing.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      }
+    }
+  }
+}
