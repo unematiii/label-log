@@ -7,9 +7,11 @@ import {
   Section,
   Text,
   TextField,
+  type TextFieldRef,
   useNativeState,
 } from '@expo/ui/swift-ui';
 import {
+  buttonStyle,
   disabled,
   foregroundStyle,
   keyboardType,
@@ -17,7 +19,7 @@ import {
   pickerStyle,
   tag,
 } from '@expo/ui/swift-ui/modifiers';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { ProductInput } from '@/database';
 
@@ -66,6 +68,38 @@ function initialUnit(
   }
 
   return values.servingUnit ?? 'g';
+}
+
+function NutrientField({
+  label,
+  text,
+}: {
+  label: string;
+  text: NonNullable<React.ComponentProps<typeof TextField>['text']>;
+}) {
+  const inputRef = useRef<TextFieldRef>(null);
+
+  return (
+    <LabeledContent
+      label={
+        <Button
+          label={label}
+          onPress={() => void inputRef.current?.focus()}
+          modifiers={[
+            buttonStyle('borderless'),
+            foregroundStyle({ type: 'hierarchical', style: 'secondary' }),
+          ]}
+        />
+      }
+    >
+      <TextField
+        ref={inputRef}
+        text={text}
+        placeholder="0"
+        modifiers={[keyboardType('decimal-pad')]}
+      />
+    </LabeledContent>
+  );
 }
 
 export function ProductForm({
@@ -131,14 +165,30 @@ export function ProductForm({
         parseNumber(numericStates[field].get()),
       ])
     ) as Record<NumberField, number | null>;
-    const missingField = numberFields.find(
-      ([field]) => numbers[field] === null
+    const invalidField = numberFields.find(
+      ([field]) =>
+        numericStates[field].get().trim() !== '' && numbers[field] === null
     );
+    const missingField = numberFields
+      .slice(0, 2)
+      .find(([field]) => numbers[field] === null);
+
+    if (invalidField) {
+      setError(`${invalidField[1]} must be a non-negative number.`);
+      return;
+    }
 
     if (missingField) {
       setError(`${missingField[1]} must be a non-negative number.`);
       return;
     }
+
+    const completedNumbers = Object.fromEntries(
+      numberFields.map(([field], index) => [
+        field,
+        index >= 2 ? (numbers[field] ?? 0) : numbers[field],
+      ])
+    ) as Record<NumberField, number>;
 
     setError(null);
     setIsSaving(true);
@@ -149,7 +199,7 @@ export function ProductForm({
         name: trimmedName,
         basisUnit: unit,
         servingUnit: unit,
-        ...(numbers as Record<NumberField, number>),
+        ...completedNumbers,
       });
     } catch (cause) {
       setError(
@@ -224,27 +274,11 @@ export function ProductForm({
 
         <Section title="Nutrition values">
           {numberFields.slice(2).map(([field, label]) => (
-            <LabeledContent
+            <NutrientField
               key={field}
-              label={
-                <Text
-                  modifiers={[
-                    foregroundStyle({
-                      type: 'hierarchical',
-                      style: 'secondary',
-                    }),
-                  ]}
-                >
-                  {label}
-                </Text>
-              }
-            >
-              <TextField
-                text={numericStates[field]}
-                placeholder="0"
-                modifiers={[keyboardType('decimal-pad')]}
-              />
-            </LabeledContent>
+              label={label}
+              text={numericStates[field]}
+            />
           ))}
         </Section>
 

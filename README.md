@@ -1,4 +1,4 @@
-# LabelLog workspace
+# LabelLog
 
 LabelLog is an iOS app that scans nutrition labels and logs their values to
 Apple Health. Scan a product barcode, review the extracted nutrition values,
